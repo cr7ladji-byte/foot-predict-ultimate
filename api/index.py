@@ -209,7 +209,7 @@ def generate_ultimate_prediction(home: str, away: str, competition: str):
     total_xg = round(lambda_home + lambda_away, 2)
     
     max_goals = 6
-    prob_home = prob_draw = prob_away = 0.0
+    raw_home = raw_draw = raw_away = 0.0
     scores_matrix = {}
     
     for h in range(max_goals + 1):
@@ -218,12 +218,18 @@ def generate_ultimate_prediction(home: str, away: str, competition: str):
             p_a = poisson_pmf(a, lambda_away)
             p_exact = p_h * p_a
             scores_matrix[f"{h}-{a}"] = p_exact
-            if h > a: prob_home += p_exact
-            elif h == a: prob_draw += p_exact
-            else: prob_away += p_exact
+            if h > a: raw_home += p_exact
+            elif h == a: raw_draw += p_exact
+            else: raw_away += p_exact
+
+    # Normalisation pour garantir 100% au total
+    total_p = raw_home + raw_draw + raw_away
+    prob_home = raw_home / total_p if total_p > 0 else 0.33
+    prob_draw = raw_draw / total_p if total_p > 0 else 0.33
+    prob_away = raw_away / total_p if total_p > 0 else 0.33
 
     top_scores = sorted(scores_matrix.items(), key=lambda x: x[1], reverse=True)[:3]
-    top_scores_formatted = [{"score": s[0], "prob": round(s[1] * 100, 1)} for s in top_scores]
+    top_scores_formatted = [{"score": s[0], "prob": round((s[1] / total_p) * 100, 1)} for s in top_scores]
 
     arbitres = ["Clément Turpin", "Anthony Taylor", "Szymon Marciniak", "Daniele Orsato", "Slavko Vinčić"]
     arbitre_nom = random.choice(arbitres)
@@ -291,5 +297,6 @@ def generate_ultimate_prediction(home: str, away: str, competition: str):
     }
 
 @app.get("/api/predict")
+@app.get("/predict")
 def predict(home: str = Query(...), away: str = Query(...), competition: str = Query("Toutes compétitions")):
     return generate_ultimate_prediction(home, away, competition)
