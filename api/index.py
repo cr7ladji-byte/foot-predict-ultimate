@@ -1,11 +1,9 @@
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 import math
 import random
-import os
 
-app = FastAPI(title="Foot Predict Ultimate - Personal Engine")
+app = FastAPI(title="Foot Predict Ultimate - Moteur Autonome")
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,12 +23,12 @@ def generate_ultimate_prediction(home: str, away: str, competition: str):
     seed_val = sum(ord(c) for c in seed_str)
     random.seed(seed_val)
     
-    # 1. Expected Goals (xG)
+    # Expected Goals (xG)
     lambda_home = round(random.uniform(1.25, 2.45), 2)
     lambda_away = round(random.uniform(0.75, 1.85), 2)
     total_xg = round(lambda_home + lambda_away, 2)
     
-    # 2. Distribution de Poisson (1N2 & Scores)
+    # Distribution de Poisson
     max_goals = 6
     prob_home = prob_draw = prob_away = 0.0
     scores_matrix = {}
@@ -48,28 +46,28 @@ def generate_ultimate_prediction(home: str, away: str, competition: str):
     top_scores = sorted(scores_matrix.items(), key=lambda x: x[1], reverse=True)[:3]
     top_scores_formatted = [{"score": s[0], "prob": round(s[1] * 100, 1)} for s in top_scores]
 
-    # 3. Arbitrage
+    # Arbitrage & Cartons
     arbitres = ["Clément Turpin", "Anthony Taylor", "Szymon Marciniak", "Daniele Orsato", "Slavko Vinčić"]
     arbitre_nom = random.choice(arbitres)
     avg_cartons_ref = round(random.uniform(3.9, 5.7), 1)
     avg_fautes_ref = round(random.uniform(21.5, 27.5), 1)
     severite_ref = "Sévère (Cartons rapides)" if avg_cartons_ref >= 4.8 else "Permissif (Laisse jouer)"
     
-    # 4. Corners
+    # Corners
     corners_home = round(random.uniform(4.8, 7.2), 1)
     corners_away = round(random.uniform(3.2, 5.8), 1)
     corners_total = round(corners_home + corners_away, 1)
     domination_corners = f"{home} domine largement les côtés" if corners_home > corners_away + 1.2 else "Équilibre tactique au milieu"
 
-    # 5. Cartons & Fautes
+    # Cartons & Fautes
     fautes_totales = random.randint(22, 31)
     cartons_totaux = round((avg_cartons_ref + (fautes_totales * 0.16)) / 2, 1)
 
-    # 6. Mi-temps
+    # Mi-temps
     prob_ht2 = round(random.uniform(53.0, 59.0), 1)
     prob_ht1 = round(random.uniform(24.0, 29.0), 1)
 
-    # 7. Joueurs clés
+    # Joueurs clés
     joueurs_clefs = {
         "domicile": [
             {"nom": f"Attaquant Star ({home})", "role": "Buteur principal", "prob": f"{round(random.uniform(42, 68))}%"},
@@ -81,7 +79,7 @@ def generate_ultimate_prediction(home: str, away: str, competition: str):
         ]
     }
 
-    # 8. Tendances
+    # Tendances
     tendances = {
         "domicile": [
             f"Marque 65% de ses buts lors des 30 dernières minutes à domicile.",
@@ -93,7 +91,7 @@ def generate_ultimate_prediction(home: str, away: str, competition: str):
         ]
     }
 
-    # 9. Top 5 Opportunités
+    # Top 5 Opportunités
     opp_cartons_line = math.floor(cartons_totaux - 0.5)
     opp_corners_line = math.floor(corners_total - 0.5)
     
@@ -139,10 +137,3 @@ def generate_ultimate_prediction(home: str, away: str, competition: str):
 @app.get("/api/predict")
 def predict(home: str = Query(...), away: str = Query(...), competition: str = Query("Toutes compétitions")):
     return generate_ultimate_prediction(home, away, competition)
-
-@app.get("/")
-def read_index():
-    static_file = os.path.join(os.path.dirname(__file__), "../public/index.html")
-    if os.path.exists(static_file):
-        return FileResponse(static_file)
-    return {"message": "Moteur d'analyse autonome prêt."}
