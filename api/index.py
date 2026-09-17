@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 import math
 import random
 
@@ -12,6 +13,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Route pour afficher la page d'accueil (index.html)
+@app.get("/", response_class=HTMLResponse)
+def read_root():
+    try:
+        with open("public/index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception:
+        return "<h1>Fichier public/index.html introuvable</h1>"
 
 def poisson_pmf(k: int, mu: float) -> float:
     if mu <= 0:
