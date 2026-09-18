@@ -33,9 +33,12 @@ HTML_CONTENT = """<!DOCTYPE html>
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
         .full-width { grid-column: 1 / -1; }
         .highlight { border-color: var(--gold); }
-        form { display: flex; flex-direction: column; gap: 12px; }
-        label { font-size: 0.85rem; color: var(--sub); font-weight: 600; }
-        input { background: #0f172a; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 8px; font-size: 1rem; }
+        
+                form { display: flex; flex-direction: column; gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+        label { display: block; font-size: 0.85rem; color: var(--sub); font-weight: 600; }
+        input { width: 100%; background: #0f172a; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 8px; font-size: 1rem; }
+        
         button { background: var(--accent); color: #0f172a; font-weight: 700; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; }
         .hidden { display: none !important; }
         .loader { text-align: center; padding: 30px; }
@@ -62,12 +65,26 @@ HTML_CONTENT = """<!DOCTYPE html>
 
         <div class="card">
             <h2>🔎 Analyser un Match</h2>
-            <form id="p-form">
-                <div><label>Domicile</label><input type="text" id="home" placeholder="Ex: PSG" required></div>
-                <div><label>Extérieur</label><input type="text" id="away" placeholder="Ex: Marseille" required></div>
-                <div><label>Compétition</label><input type="text" id="comp" placeholder="Ex: Ligue 1"></div>
+
+            
+                        <form id="p-form">
+                <div class="form-group">
+                    <label for="home">Domicile</label>
+                    <input type="text" id="home" placeholder="Ex: PSG" required>
+                </div>
+                <div class="form-group">
+                    <label for="away">Extérieur</label>
+                    <input type="text" id="away" placeholder="Ex: Marseille" required>
+                </div>
+                <div class="form-group">
+                    <label for="comp">Compétition</label>
+                    <input type="text" id="comp" placeholder="Ex: Ligue 1">
+                </div>
                 <button type="submit">🚀 Lancer l'Analyse</button>
             </form>
+
+
+            
         </div>
 
         <div id="loader" class="loader hidden">
