@@ -191,8 +191,12 @@ HTML_CONTENT = """<!DOCTYPE html>
 </html>"""
 
 @app.get("/", response_class=HTMLResponse)
+@app.get("/api", response_class=HTMLResponse)
+@app.get("/api/index", response_class=HTMLResponse)
+@app.get("/api/index.py", response_class=HTMLResponse)
 def read_root():
     return HTML_CONTENT
+
 
 def poisson_pmf(k: int, mu: float) -> float:
     if mu <= 0:
